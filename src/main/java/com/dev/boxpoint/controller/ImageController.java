@@ -4,7 +4,8 @@ import com.dev.boxpoint.dtos.ImageDto;
 import com.dev.boxpoint.model.Image;
 import com.dev.boxpoint.response.ApiResponse;
 import com.dev.boxpoint.service.image.IImageService;
-import jakarta.persistence.EntityNotFoundException;
+import java.sql.SQLException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -13,12 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.sql.SQLException;
-import java.util.List;
-
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,16 +26,10 @@ public class ImageController {
     public ResponseEntity<ApiResponse> uploadImages(
             @RequestParam("files") List<MultipartFile> files,
             @RequestParam("productId") Long productId) {
-        try {
-            // Call the service layer to save all uploaded images linked to the given product ID
-            List<ImageDto> imageDto = imageService.saveImages(productId, files);
+        // Call the service layer to save all uploaded images linked to the given product ID
+        List<ImageDto> imageDto = imageService.saveImages(productId, files);
 
-            return ResponseEntity.ok(new ApiResponse("Images uploaded successfully!", imageDto));
-        } catch (Exception e) {
-            // If something goes wrong, return a 500 Internal Server Error with an error message
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("Error while uploading: ", e.getMessage()));
-        }
+        return ResponseEntity.ok(new ApiResponse("Images uploaded successfully!", imageDto));
     }
 
     @GetMapping("/image/download/{imageId}")
@@ -66,31 +55,19 @@ public class ImageController {
     public ResponseEntity<ApiResponse> updateImage(
             @PathVariable Long imageId,
             @RequestBody MultipartFile file) {
-        try {
-            // Update image with file and image id information
-            imageService.updateImage(file, imageId);
+        // Update image with file and image id information
+        imageService.updateImage(file, imageId);
 
-            // Return successfully message
-            return ResponseEntity.ok(new ApiResponse("Image updated successfully!", null));
-        } catch (EntityNotFoundException e) {
-            // Return error message if image not found
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        // Return successfully message
+        return ResponseEntity.ok(new ApiResponse("Image updated successfully!", null));
     }
 
     @DeleteMapping("/image/{imageId}/delete")
     public ResponseEntity<ApiResponse> deleteImage(@PathVariable Long imageId) {
-        try {
-            // Delete image with given id
-            imageService.deleteImageById(imageId);
+        // Delete image with given id
+        imageService.deleteImageById(imageId);
 
-            // Return success message
-            return ResponseEntity.ok(new ApiResponse("Image successfully deleted!", null));
-        } catch (EntityNotFoundException e) {
-            // Return error message if image not found
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        // Return success message
+        return ResponseEntity.ok(new ApiResponse("Image successfully deleted!", null));
     }
 }

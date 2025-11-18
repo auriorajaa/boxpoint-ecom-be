@@ -6,15 +6,10 @@ import com.dev.boxpoint.request.AddProductRequest;
 import com.dev.boxpoint.request.UpdateProductRequest;
 import com.dev.boxpoint.response.ApiResponse;
 import com.dev.boxpoint.service.product.IProductService;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,90 +32,60 @@ public class ProductController {
 
     @GetMapping("/product/{productId}/product")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long productId) {
-        try {
-            // Retrieve product by its ID
-            Product product = productService.getProductById(productId);
+        // Retrieve product by its ID
+        Product product = productService.getProductById(productId);
 
-            // Convert entity to DTO for the response
-            ProductDto productDto = productService.convertToDto(product);
+        // Convert entity to DTO for the response
+        ProductDto productDto = productService.convertToDto(product);
 
-            // Return 200 OK with the found product DTO
-            return ResponseEntity.ok(new ApiResponse("FOUND", productDto));
-        } catch (EntityNotFoundException e) {
-            // Handle case where product is not found (404 NOT FOUND)
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(new ApiResponse("Product not found with given id!", e.getMessage()));
-        }
+        // Return 200 OK with the found product DTO
+        return ResponseEntity.ok(new ApiResponse("FOUND", productDto));
     }
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest product) {
-        try {
-            // Add the new product via the service layer
-            Product theProduct = productService.addProduct(product);
-            // Convert the result to DTO
-            ProductDto productDto = productService.convertToDto(theProduct);
+        // Add the new product via the service layer
+        Product theProduct = productService.addProduct(product);
+        // Convert the result to DTO
+        ProductDto productDto = productService.convertToDto(theProduct);
 
-            // Return 200 OK on success
-            return ResponseEntity.ok(new ApiResponse("Product successfully added!", productDto));
-        } catch (EntityExistsException e) {
-            // Handle case where product already exists (409 CONFLICT)
-            return ResponseEntity.status(CONFLICT)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        // Return 200 OK on success
+        return ResponseEntity.ok(new ApiResponse("Product successfully added!", productDto));
     }
 
     @PutMapping("/product/{productId}/update")
     public ResponseEntity<ApiResponse> updateProduct(
             @RequestBody UpdateProductRequest request,
             @PathVariable Long productId) {
-        try {
-            // Update the existing product
-            Product theProduct = productService.updateProduct(request, productId);
-            // Convert the updated entity to DTO
-            ProductDto productDto = productService.convertToDto(theProduct);
+        // Update the existing product
+        Product theProduct = productService.updateProduct(request, productId);
+        // Convert the updated entity to DTO
+        ProductDto productDto = productService.convertToDto(theProduct);
 
-            // Return 200 OK on success
-            return ResponseEntity.ok(new ApiResponse("Product successfully updated!", productDto));
-        } catch (EntityNotFoundException e) {
-            // Handle case where product to update is not found (404 NOT FOUND)
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        // Return 200 OK on success
+        return ResponseEntity.ok(new ApiResponse("Product successfully updated!", productDto));
     }
 
     @DeleteMapping("/product/{productId}/delete")
     public ResponseEntity<ApiResponse> deleteProduct(@PathVariable Long productId) {
-        try {
-            // Delete the product by its ID
-            productService.deleteProductById(productId);
+        // Delete the product by its ID
+        productService.deleteProductById(productId);
 
-            // Return 200 OK on success, sending back the deleted ID
-            return ResponseEntity.ok(new ApiResponse("Product successfully deleted!", productId));
-        } catch (EntityNotFoundException e) {
-            // Handle case where product to delete is not found (404 NOT FOUND)
-            return ResponseEntity.status(NOT_FOUND)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        // Return 200 OK on success, sending back the deleted ID
+        return ResponseEntity.ok(new ApiResponse("Product successfully deleted!", productId));
     }
 
     @GetMapping("/products/by/brand-and-name")
     public ResponseEntity<ApiResponse> getProductByBrandAndName(
             @RequestParam String brandName,
             @RequestParam String productName) {
-        try {
-            // Search for products by both brand name and product name
-            List<Product> products = productService.getProductsByBrandAndName(brandName, productName);
-            // Convert results to DTOs
-            List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
+        // Search for products by both brand name and product name
+        List<Product> products = productService.getProductsByBrandAndName(brandName, productName);
+        // Convert results to DTOs
+        List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
 
-            // Return 200 OK with the filtered list
-            return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
-        } catch (Exception e) {
-            // Handle general errors (500 INTERNAL SERVER ERROR)
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse(e.getMessage(), null));
-        }
+        // Return 200 OK with the filtered list
+        return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
     }
 
     @GetMapping("/products/by/category-and-brand")
@@ -128,19 +93,13 @@ public class ProductController {
             @RequestParam String category,
             @RequestParam String brandName
     ) {
-        try {
-            // Search for products by both category and brand name
-            List<Product> products = productService.getProductsByCategoryAndBrand(category, brandName);
-            // Convert results to DTOs
-            List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
+        // Search for products by both category and brand name
+        List<Product> products = productService.getProductsByCategoryAndBrand(category, brandName);
+        // Convert results to DTOs
+        List<ProductDto> convertedProducts = productService.getConvertedProducts(products);
 
-            // Return 200 OK with the filtered list
-            return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
-        } catch (Exception e) {
-            // Handle general errors (500 INTERNAL SERVER ERROR)
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse("error", e.getMessage()));
-        }
+        // Return 200 OK with the filtered list
+        return ResponseEntity.ok(new ApiResponse("success", convertedProducts));
     }
 
     @GetMapping("/products/{name}/products")
